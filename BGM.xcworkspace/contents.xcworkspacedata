@@ -5,9 +5,6 @@
       location = "group:BGMDriver/BGMDriver.xcodeproj">
    </FileRef>
    <FileRef
-      location = "group:BGMApp/BGMApp.xcodeproj">
-   </FileRef>
-   <FileRef
       location = "group:README.md">
    </FileRef>
    <FileRef
