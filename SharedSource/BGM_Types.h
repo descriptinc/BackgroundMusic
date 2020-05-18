@@ -85,10 +85,10 @@ static const AudioObjectPropertyElement kMasterChannel = kAudioObjectPropertyEle
 enum
 {
 	// A CFBoolean. True if the main BGMDevice instance is enabled. Settable, false by default.
-	kAudioDeviceCustomPropertyBGMDeviceEnabled             = 'bgen',
+	kAudioDeviceCustomPropertyBGMDeviceActive              = 'bgen',
 	// A CFBoolean. True if the UI Sounds instance of BGMDevice is enabled. Settable, false by
 	// default.
-	kAudioDeviceCustomPropertyBGMUISoundsDeviceEnabled     = 'bgui',
+	kAudioDeviceCustomPropertyBGMUISoundsDeviceActive      = 'bgui',
     // A CFBoolean. True if the null device is enabled. Settable, false by default.
     kAudioPlugInCustomPropertyNullDeviceActive             = 'nuld'
 };
