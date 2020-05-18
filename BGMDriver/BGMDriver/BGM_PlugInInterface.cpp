@@ -284,7 +284,7 @@ static OSStatus	BGM_Initialize(AudioServerPlugInDriverRef inDriver, AudioServerP
 		// Store the AudioServerPlugInHostRef.
 		BGM_PlugIn::GetInstance().SetHost(inHost);
         
-        // Init/activate the devices.
+        // Init the devices.
         BGM_Device::GetInstance();
         BGM_Device::GetUISoundsInstance();
         BGM_NullDevice::GetInstance();

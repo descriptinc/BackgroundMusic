@@ -21,6 +21,7 @@
 //  Copyright © 2017 Andrew Tonner
 //  Copyright © 2019 Gordon Childs
 //  Copyright (C) 2013 Apple Inc. All Rights Reserved.
+//  Copyright © 2022 Descript
 //
 //  Based largely on SA_Device.cpp from Apple's SimpleAudioDriver Plug-In sample code. Also uses a few sections from Apple's
 //  NullAudio.c sample code (found in the same sample project).
@@ -42,6 +43,7 @@
 #include "CACFString.h"
 #include "CADebugMacros.h"
 #include "CAHostTimeBase.h"
+#include "CAPropertyAddress.h"
 
 // STL Includes
 #include <stdexcept>
@@ -104,8 +106,6 @@ void	BGM_Device::StaticInitializer()
         // apply volume to its audio because BGMApp changes the real output device's volume directly
         // instead.
         theUISoundsVolumeControl.SetWillApplyVolumeToAudio(true);
-
-        sUISoundsInstance->Activate();
     }
     catch(...)
     {
@@ -154,45 +154,73 @@ void	BGM_Device::Activate()
 {
 	CAMutex::Locker theStateLocker(mStateMutex);
 
-	//	Open the connection to the driver and initialize things.
-	//_HW_Open();
-
-	mInputStream.Activate();
-	mOutputStream.Activate();
-
-	if(mVolumeControl.GetObjectID() != kAudioObjectUnknown)
+	if(!IsActive())
 	{
-		mVolumeControl.Activate();
-	}
+		DebugMsg("BGM_Device::Activate: Activating BGM%s device",
+				 GetObjectID() == kObjectID_Device_UI_Sounds ? " UI sounds" : "");
 
-    if(mMuteControl.GetObjectID() != kAudioObjectUnknown)
-	{
-		mMuteControl.Activate();
+		//	Open the connection to the driver and initialize things.
+		//_HW_Open();
+
+		mInputStream.Activate();
+		mOutputStream.Activate();
+
+		if(mVolumeControl.GetObjectID() != kAudioObjectUnknown)
+		{
+			mVolumeControl.Activate();
+		}
+
+		if(mMuteControl.GetObjectID() != kAudioObjectUnknown)
+		{
+			mMuteControl.Activate();
+		}
+
+		//	Call the super-class, which just marks the object as active
+		BGM_AbstractDevice::Activate();
+
+		SendDeviceIsAlivePropertyNotifications();
 	}
-	
-	//	Call the super-class, which just marks the object as active
-	BGM_AbstractDevice::Activate();
 }
 
 void	BGM_Device::Deactivate()
 {
+	DebugMsg("BGM_Device::Deactivate: Deactivating BGM%s device",
+			 GetObjectID() == kObjectID_Device_UI_Sounds ? " UI sounds" : "");
+
 	//	When this method is called, the object is basically dead, but we still need to be thread
 	//	safe. In this case, we also need to be safe vs. any IO threads, so we need to take both
 	//	locks.
 	CAMutex::Locker theStateLocker(mStateMutex);
-	CAMutex::Locker theIOLocker(mIOMutex);
 
-    // Mark the device's sub-objects inactive.
-	mInputStream.Deactivate();
-	mOutputStream.Deactivate();
-    mVolumeControl.Deactivate();
-    mMuteControl.Deactivate();
+	if(IsActive())
+	{
+		CAMutex::Locker theIOLocker(mIOMutex);
 
-	//	mark the object inactive by calling the super-class
-	BGM_AbstractDevice::Deactivate();
-	
-	//	close the connection to the driver
-	//_HW_Close();
+		// Mark the device's sub-objects inactive.
+		mInputStream.Deactivate();
+		mOutputStream.Deactivate();
+		mVolumeControl.Deactivate();
+		mMuteControl.Deactivate();
+
+		// Mark the object inactive by calling the super-class.
+		BGM_AbstractDevice::Deactivate();
+
+		// Close the connection to the driver.
+		//_HW_Close();
+
+		SendDeviceIsAlivePropertyNotifications();
+	}
+}
+
+void    BGM_Device::SendDeviceIsAlivePropertyNotifications()
+{
+	CADispatchQueue::GetGlobalSerialQueue().Dispatch(false, ^{
+		AudioObjectPropertyAddress theChangedProperties[] = {
+				CAPropertyAddress(kAudioDevicePropertyDeviceIsAlive)
+		};
+
+		BGM_PlugIn::Host_PropertiesChanged(GetObjectID(), 1, theChangedProperties);
+	});
 }
 
 void    BGM_Device::InitLoopback()

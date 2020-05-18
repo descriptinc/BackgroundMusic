@@ -19,6 +19,7 @@
 //
 //  Copyright © 2016 Kyle Neideck
 //  Copyright (C) 2013 Apple Inc. All Rights Reserved.
+//  Copyright © 2022 Descript
 //
 //  Based largely on SA_PlugIn.h from Apple's SimpleAudioDriver Plug-In sample code.
 //  https://developer.apple.com/library/mac/samplecode/AudioDriverExamples
@@ -35,6 +36,9 @@
 
 // PublicUtility Includes
 #include "CAMutex.h"
+
+// STL Includes
+#include <algorithm>
 
 
 class BGM_PlugIn
@@ -71,6 +75,14 @@ public:
 	virtual UInt32					GetPropertyDataSize(AudioObjectID inObjectID, pid_t inClientPID, const AudioObjectPropertyAddress& inAddress, UInt32 inQualifierDataSize, const void* inQualifierData) const;
 	virtual void					GetPropertyData(AudioObjectID inObjectID, pid_t inClientPID, const AudioObjectPropertyAddress& inAddress, UInt32 inQualifierDataSize, const void* inQualifierData, UInt32 inDataSize, UInt32& outDataSize, void* outData) const;
 	virtual void					SetPropertyData(AudioObjectID inObjectID, pid_t inClientPID, const AudioObjectPropertyAddress& inAddress, UInt32 inQualifierDataSize, const void* inQualifierData, UInt32 inDataSize, const void* inData);
+
+private:
+	void							SetDeviceActiveProperty(
+										UInt32 inDataSize,
+										const void* inData,
+										bool inDeviceIsActive,
+										const std::function<void(void)>& inActivateDevice,
+										const std::function<void(void)>& inDeactivateDevice);
 
 #pragma mark Implementation
     

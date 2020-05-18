@@ -19,6 +19,7 @@
 //
 //  Copyright © 2016, 2017 Kyle Neideck
 //  Copyright (C) 2013 Apple Inc. All Rights Reserved.
+//  Copyright © 2022 Descript
 //
 //  Based largely on SA_PlugIn.cpp from Apple's SimpleAudioDriver Plug-In sample code.
 //  https://developer.apple.com/library/mac/samplecode/AudioDriverExamples
@@ -96,6 +97,8 @@ bool	BGM_PlugIn::HasProperty(AudioObjectID inObjectID, pid_t inClientPID, const 
 		case kAudioPlugInPropertyTranslateUIDToDevice:
         case kAudioPlugInPropertyResourceBundle:
         case kAudioObjectPropertyCustomPropertyInfoList:
+        case kAudioDeviceCustomPropertyBGMDeviceEnabled:
+        case kAudioDeviceCustomPropertyBGMUISoundsDeviceEnabled:
         case kAudioPlugInCustomPropertyNullDeviceActive:
 			theAnswer = true;
 			break;
@@ -119,6 +122,8 @@ bool	BGM_PlugIn::IsPropertySettable(AudioObjectID inObjectID, pid_t inClientPID,
 			theAnswer = false;
 			break;
 
+        case kAudioDeviceCustomPropertyBGMDeviceEnabled:
+        case kAudioDeviceCustomPropertyBGMUISoundsDeviceEnabled:
         case kAudioPlugInCustomPropertyNullDeviceActive:
             theAnswer = true;
             break;
@@ -141,8 +146,21 @@ UInt32	BGM_PlugIn::GetPropertyDataSize(AudioObjectID inObjectID, pid_t inClientP
 		case kAudioObjectPropertyOwnedObjects:
 		case kAudioPlugInPropertyDeviceList:
             // The plug-in owns the main BGM_Device, the instance of BGM_Device that handles UI
-            // sounds and, if it's enabled, the null device.
-            theAnswer = (BGM_NullDevice::GetInstance().IsActive() ? 3 : 2) * sizeof(AudioObjectID);
+            // sounds and the null device.
+            theAnswer = 0;
+
+            if(BGM_Device::GetInstance().IsActive()) {
+                theAnswer += sizeof(AudioObjectID);
+            }
+
+            if(BGM_Device::GetUISoundsInstance().IsActive()) {
+                theAnswer += sizeof(AudioObjectID);
+            }
+
+            if(BGM_NullDevice::GetInstance().IsActive()) {
+                theAnswer += sizeof(AudioObjectID);
+            }
+
 			break;
 			
 		case kAudioPlugInPropertyTranslateUIDToDevice:
@@ -154,9 +172,11 @@ UInt32	BGM_PlugIn::GetPropertyDataSize(AudioObjectID inObjectID, pid_t inClientP
 			break;
 
         case kAudioObjectPropertyCustomPropertyInfoList:
-            theAnswer = sizeof(AudioServerPlugInCustomPropertyInfo);
+            theAnswer = 3 * sizeof(AudioServerPlugInCustomPropertyInfo);
             break;
 
+        case kAudioDeviceCustomPropertyBGMDeviceEnabled:
+        case kAudioDeviceCustomPropertyBGMUISoundsDeviceEnabled:
         case kAudioPlugInCustomPropertyNullDeviceActive:
             theAnswer = sizeof(CFBooleanRef);
             break;
@@ -174,7 +194,7 @@ void	BGM_PlugIn::GetPropertyData(AudioObjectID inObjectID, pid_t inClientPID, co
 		case kAudioObjectPropertyManufacturer:
 			//	This is the human readable name of the maker of the plug-in.
 			ThrowIf(inDataSize < sizeof(CFStringRef), CAException(kAudioHardwareBadPropertySizeError), "BGM_PlugIn::GetPropertyData: not enough space for the return value of kAudioObjectPropertyManufacturer");
-			*reinterpret_cast<CFStringRef*>(outData) = CFSTR("Background Music contributors");
+			*reinterpret_cast<CFStringRef*>(outData) = CFSTR("Descript");
 			outDataSize = sizeof(CFStringRef);
 			break;
 			
@@ -182,43 +202,39 @@ void	BGM_PlugIn::GetPropertyData(AudioObjectID inObjectID, pid_t inClientPID, co
             // Fall through because this plug-in object only owns the devices.
 		case kAudioPlugInPropertyDeviceList:
             {
+                const char* thePropertyName =
+                        inAddress.mSelector == kAudioObjectPropertyOwnedObjects ?
+                                "kAudioObjectPropertyOwnedObjects" :
+                                "kAudioPlugInPropertyDeviceList";
     			AudioObjectID* theReturnedDeviceList = reinterpret_cast<AudioObjectID*>(outData);
-                if(inDataSize >= 3 * sizeof(AudioObjectID))
-                {
-                    if(BGM_NullDevice::GetInstance().IsActive())
-                    {
-                        theReturnedDeviceList[0] = kObjectID_Device;
-                        theReturnedDeviceList[1] = kObjectID_Device_UI_Sounds;
-                        theReturnedDeviceList[2] = kObjectID_Device_Null;
-                        
-                        //	say how much we returned
-                        outDataSize = 3 * sizeof(AudioObjectID);
-                    }
-                    else
-                    {
-                        theReturnedDeviceList[0] = kObjectID_Device;
-                        theReturnedDeviceList[1] = kObjectID_Device_UI_Sounds;
+    			int theDeviceListIdx = 0;
+                outDataSize = 0;
 
-                        //	say how much we returned
-                        outDataSize = 2 * sizeof(AudioObjectID);
-                    }
-                }
-                else if(inDataSize >= 2 * sizeof(AudioObjectID))
+                if(BGM_Device::GetInstance().IsActive() &&
+                        inDataSize >= outDataSize + sizeof(AudioObjectID))
                 {
-                    theReturnedDeviceList[0] = kObjectID_Device;
-                    theReturnedDeviceList[1] = kObjectID_Device_UI_Sounds;
+                    DebugMsg("BGM_PlugIn::GetPropertyData: Returning BGMDevice for %s",
+                             thePropertyName);
+                    theReturnedDeviceList[theDeviceListIdx++] = kObjectID_Device;
+                    outDataSize += sizeof(AudioObjectID);
+                }
 
-                    //	say how much we returned
-                    outDataSize = 2 * sizeof(AudioObjectID);
-                }
-                else if(inDataSize >= sizeof(AudioObjectID))
+                if(BGM_Device::GetUISoundsInstance().IsActive() &&
+                        inDataSize >= outDataSize + sizeof(AudioObjectID))
                 {
-                    theReturnedDeviceList[0] = kObjectID_Device;
-                    outDataSize = sizeof(AudioObjectID);
+                    DebugMsg("BGM_PlugIn::GetPropertyData: Returning UI Sounds BGMDevice for %s",
+                             thePropertyName);
+                    theReturnedDeviceList[theDeviceListIdx++] = kObjectID_Device_UI_Sounds;
+                    outDataSize += sizeof(AudioObjectID);
                 }
-                else
+
+                if(BGM_NullDevice::GetInstance().IsActive() &&
+                        inDataSize >= outDataSize + sizeof(AudioObjectID))
                 {
-                    outDataSize = 0;
+                    DebugMsg("BGM_PlugIn::GetPropertyData: Returning Null Device for %s",
+                             thePropertyName);
+                    theReturnedDeviceList[theDeviceListIdx++] = kObjectID_Device_Null;
+                    outDataSize += sizeof(AudioObjectID);
                 }
             }
 			break;
@@ -234,13 +250,15 @@ void	BGM_PlugIn::GetPropertyData(AudioObjectID inObjectID, pid_t inClientPID, co
                 CFStringRef theUID = *reinterpret_cast<const CFStringRef*>(inQualifierData);
                 AudioObjectID* outID = reinterpret_cast<AudioObjectID*>(outData);
 
-                if(CFEqual(theUID, BGM_Device::GetInstance().CopyDeviceUID()))
+                if(BGM_Device::GetInstance().IsActive() &&
+                        CFEqual(theUID, BGM_Device::GetInstance().CopyDeviceUID()))
                 {
                     DebugMsg("BGM_PlugIn::GetPropertyData: Returning BGMDevice for "
                              "kAudioPlugInPropertyTranslateUIDToDevice");
                     *outID = kObjectID_Device;
                 }
-                else if(CFEqual(theUID, BGM_Device::GetUISoundsInstance().CopyDeviceUID()))
+                else if(BGM_Device::GetUISoundsInstance().IsActive() &&
+                        CFEqual(theUID, BGM_Device::GetUISoundsInstance().CopyDeviceUID()))
                 {
                     DebugMsg("BGM_PlugIn::GetPropertyData: Returning BGMUISoundsDevice for "
                              "kAudioPlugInPropertyTranslateUIDToDevice");
@@ -274,23 +292,68 @@ void	BGM_PlugIn::GetPropertyData(AudioObjectID inObjectID, pid_t inClientPID, co
 			break;
 
         case kAudioObjectPropertyCustomPropertyInfoList:
-            if(inDataSize >= sizeof(AudioServerPlugInCustomPropertyInfo))
             {
                 AudioServerPlugInCustomPropertyInfo* outCustomProperties =
-                    reinterpret_cast<AudioServerPlugInCustomPropertyInfo*>(outData);
+                        reinterpret_cast<AudioServerPlugInCustomPropertyInfo*>(outData);
 
-                outCustomProperties[0].mSelector = kAudioPlugInCustomPropertyNullDeviceActive;
-                outCustomProperties[0].mPropertyDataType =
-                    kAudioServerPlugInCustomPropertyDataTypeCFPropertyList;
-                outCustomProperties[0].mQualifierDataType =
-                    kAudioServerPlugInCustomPropertyDataTypeNone;
+                if(inDataSize >= sizeof(AudioServerPlugInCustomPropertyInfo))
+                {
+                    outCustomProperties[0].mSelector = kAudioDeviceCustomPropertyBGMDeviceEnabled;
+                    outCustomProperties[0].mPropertyDataType =
+                            kAudioServerPlugInCustomPropertyDataTypeCFPropertyList;
+                    outCustomProperties[0].mQualifierDataType =
+                            kAudioServerPlugInCustomPropertyDataTypeNone;
 
-                outDataSize = sizeof(AudioServerPlugInCustomPropertyInfo);
+                    outDataSize = sizeof(AudioServerPlugInCustomPropertyInfo);
+                }
+                else
+                {
+                    outDataSize = 0;
+                }
+
+                if(inDataSize >= sizeof(AudioServerPlugInCustomPropertyInfo) * 2)
+                {
+                    outCustomProperties[1].mSelector =
+                            kAudioDeviceCustomPropertyBGMUISoundsDeviceEnabled;
+                    outCustomProperties[1].mPropertyDataType =
+                            kAudioServerPlugInCustomPropertyDataTypeCFPropertyList;
+                    outCustomProperties[1].mQualifierDataType =
+                            kAudioServerPlugInCustomPropertyDataTypeNone;
+
+                    outDataSize = sizeof(AudioServerPlugInCustomPropertyInfo) * 2;
+                }
+
+                if(inDataSize >= sizeof(AudioServerPlugInCustomPropertyInfo) * 3)
+                {
+                    outCustomProperties[2].mSelector = kAudioPlugInCustomPropertyNullDeviceActive;
+                    outCustomProperties[2].mPropertyDataType =
+                        kAudioServerPlugInCustomPropertyDataTypeCFPropertyList;
+                    outCustomProperties[2].mQualifierDataType =
+                        kAudioServerPlugInCustomPropertyDataTypeNone;
+
+                    outDataSize = sizeof(AudioServerPlugInCustomPropertyInfo) * 3;
+                }
             }
-            else
-            {
-                outDataSize = 0;
-            }
+            break;
+
+        case kAudioDeviceCustomPropertyBGMDeviceEnabled:
+            ThrowIf(inDataSize < sizeof(CFBooleanRef),
+                    CAException(kAudioHardwareBadPropertySizeError),
+                    "BGM_PlugIn::GetPropertyData: not enough space for the return value of "
+                    "kAudioDeviceCustomPropertyBGMDeviceEnabled");
+            *reinterpret_cast<CFBooleanRef*>(outData) =
+                    BGM_Device::GetInstance().IsActive() ? kCFBooleanTrue : kCFBooleanFalse;
+            outDataSize = sizeof(CFBooleanRef);
+            break;
+
+        case kAudioDeviceCustomPropertyBGMUISoundsDeviceEnabled:
+            ThrowIf(inDataSize < sizeof(CFBooleanRef),
+                    CAException(kAudioHardwareBadPropertySizeError),
+                    "BGM_PlugIn::GetPropertyData: not enough space for the return value of "
+                    "kAudioDeviceCustomPropertyBGMUISoundsDeviceEnabled");
+            *reinterpret_cast<CFBooleanRef*>(outData) =
+                    BGM_Device::GetUISoundsInstance().IsActive() ? kCFBooleanTrue : kCFBooleanFalse;
+            outDataSize = sizeof(CFBooleanRef);
             break;
 
         case kAudioPlugInCustomPropertyNullDeviceActive:
@@ -313,58 +376,79 @@ void	BGM_PlugIn::SetPropertyData(AudioObjectID inObjectID, pid_t inClientPID, co
 {
 	switch(inAddress.mSelector)
 	{
+        case kAudioDeviceCustomPropertyBGMDeviceEnabled:
+            SetDeviceActiveProperty(inDataSize, 
+                                    inData,
+                                    BGM_Device::GetInstance().IsActive(),
+                                    []() { BGM_Device::GetInstance().Activate(); },
+                                    []() { BGM_Device::GetInstance().Deactivate(); });
+            break;
+
+        case kAudioDeviceCustomPropertyBGMUISoundsDeviceEnabled:
+            SetDeviceActiveProperty(inDataSize,
+                                    inData,
+                                    BGM_Device::GetUISoundsInstance().IsActive(),
+                                    []() { BGM_Device::GetUISoundsInstance().Activate(); },
+                                    []() { BGM_Device::GetUISoundsInstance().Deactivate(); });
+            break;
+
         case kAudioPlugInCustomPropertyNullDeviceActive:
-            {
-                ThrowIf(inDataSize < sizeof(CFBooleanRef),
-                        CAException(kAudioHardwareBadPropertySizeError),
-                        "BGM_PlugIn::SetPropertyData: wrong size for the data for "
-                        "kAudioPlugInCustomPropertyNullDeviceActive");
-
-                CFBooleanRef theIsActiveRef = *reinterpret_cast<const CFBooleanRef*>(inData);
-
-                ThrowIfNULL(theIsActiveRef,
-                            CAException(kAudioHardwareIllegalOperationError),
-                            "BGM_PlugIn::SetPropertyData: null reference given for "
-                            "kAudioPlugInCustomPropertyNullDeviceActive");
-                ThrowIf(CFGetTypeID(theIsActiveRef) != CFBooleanGetTypeID(),
-                        CAException(kAudioHardwareIllegalOperationError),
-                        "BGM_PlugIn::SetPropertyData: CFType given for "
-                        "kAudioPlugInCustomPropertyNullDeviceActive was not a CFBoolean");
-
-                bool theIsActive = CFBooleanGetValue(theIsActiveRef);
-
-                if(theIsActive != BGM_NullDevice::GetInstance().IsActive())
-                {
-                    // Activate/deactivate the Null Device. We only make it active for a short
-                    // period, while changing output device in BGMApp, so it can be hidden from the
-                    // user.
-                    if(theIsActive)
-                    {
-                        DebugMsg("BGM_PlugIn::SetPropertyData: Activating null device");
-                        BGM_NullDevice::GetInstance().Activate();
-                    }
-                    else
-                    {
-                        DebugMsg("BGM_PlugIn::SetPropertyData: Deactivating null device");
-                        BGM_NullDevice::GetInstance().Deactivate();
-                    }
-
-                    // Send notifications.
-                    CADispatchQueue::GetGlobalSerialQueue().Dispatch(false, ^{
-                        AudioObjectPropertyAddress theChangedProperties[] = {
-                            CAPropertyAddress(kAudioObjectPropertyOwnedObjects),
-                            CAPropertyAddress(kAudioPlugInPropertyDeviceList)
-                        };
-
-                        Host_PropertiesChanged(GetObjectID(), 2, theChangedProperties);
-                    });
-                }
-            }
+            SetDeviceActiveProperty(inDataSize,
+                                    inData,
+                                    BGM_NullDevice::GetInstance().IsActive(),
+                                    []() { BGM_NullDevice::GetInstance().Activate(); },
+                                    []() { BGM_NullDevice::GetInstance().Deactivate(); });
             break;
             
 		default:
 			BGM_Object::SetPropertyData(inObjectID, inClientPID, inAddress, inQualifierDataSize, inQualifierData, inDataSize, inData);
 			break;
 	};
+}
+
+void	BGM_PlugIn::SetDeviceActiveProperty(UInt32 inDataSize,
+                                            const void* inData,
+                                            bool inDeviceIsActive,
+                                            const std::function<void(void)>& inActivateDevice,
+                                            const std::function<void(void)>& inDeactivateDevice)
+{
+    ThrowIf(inDataSize < sizeof(CFBooleanRef),
+            CAException(kAudioHardwareBadPropertySizeError),
+            "BGM_PlugIn::SetDeviceActiveProperty: wrong size for the data");
+
+    CFBooleanRef theIsActiveRef = *reinterpret_cast<const CFBooleanRef*>(inData);
+
+    ThrowIfNULL(theIsActiveRef,
+                CAException(kAudioHardwareIllegalOperationError),
+                "BGM_PlugIn::SetDeviceActiveProperty: null reference given");
+    ThrowIf(CFGetTypeID(theIsActiveRef) != CFBooleanGetTypeID(),
+            CAException(kAudioHardwareIllegalOperationError),
+            "BGM_PlugIn::SetDeviceActiveProperty: CFType given for property was not a CFBoolean");
+
+    bool theIsActive = CFBooleanGetValue(theIsActiveRef);
+
+    // If the property isn't already set to the value given...
+    if(theIsActive != inDeviceIsActive)
+    {
+        // Activate/deactivate the device.
+        if(theIsActive)
+        {
+            inActivateDevice();
+        }
+        else
+        {
+            inDeactivateDevice();
+        }
+
+        // Send notifications.
+        CADispatchQueue::GetGlobalSerialQueue().Dispatch(false, ^{
+            AudioObjectPropertyAddress theChangedProperties[] = {
+                    CAPropertyAddress(kAudioObjectPropertyOwnedObjects),
+                    CAPropertyAddress(kAudioPlugInPropertyDeviceList)
+            };
+
+            Host_PropertiesChanged(GetObjectID(), 2, theChangedProperties);
+        });
+    }
 }
 

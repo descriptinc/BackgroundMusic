@@ -20,6 +20,7 @@
 # quick_install.sh
 # BGMDriver
 #
+# Copyright © 2022 Descript
 # Copyright © 2016 Kyle Neideck
 #
 # Installs the HAL plugin to /Library/Audio/Plug-Ins/HAL and restarts coreaudiod to enable it.
@@ -180,8 +181,8 @@ if [[ -d "${INSTALLED_DRIVER_PATH}" ]]; then
 
     # Sanity check
     INSTALLED_DRIVER_SIZE_KB="$(du -sk "${INSTALLED_DRIVER_PATH}" | cut -f1)"
-    if [[ ! "${INSTALLED_DRIVER_SIZE_KB}" =~ ^-?[0-9]+$ ]] || [[ "${INSTALLED_DRIVER_SIZE_KB}" -gt 2048 ]]; then
-        echo "$(bold_face Aborting). The driver currently installed in \"${INSTALLED_DRIVER_PATH}\" was much larger than expected (>2MB)." >&2
+    if [[ ! "${INSTALLED_DRIVER_SIZE_KB}" =~ ^-?[0-9]+$ ]] || [[ "${INSTALLED_DRIVER_SIZE_KB}" -gt 4096 ]]; then
+        echo "$(bold_face Aborting). The driver currently installed in \"${INSTALLED_DRIVER_PATH}\" was much larger than expected (>4MB)." >&2
         exit 1
     fi
 

@@ -18,6 +18,7 @@
 //  BGMDriver
 //
 //  Copyright © 2017 Kyle Neideck
+//  Copyright © 2022 Descript
 //
 
 // Self Include
@@ -84,6 +85,8 @@ void    BGM_NullDevice::Activate()
 
     if(!IsActive())
     {
+        DebugMsg("BGM_NullDevice::Activate: Activating null device");
+
         // Call the super-class, which just marks the object as active.
         BGM_AbstractDevice::Activate();
 
@@ -100,6 +103,8 @@ void    BGM_NullDevice::Deactivate()
 
     if(IsActive())
     {
+        DebugMsg("BGM_NullDevice::Deactivate: Deactivating null device");
+
         CAMutex::Locker theIOLocker(mIOMutex);
 
         // Mark the object inactive by calling the super-class.

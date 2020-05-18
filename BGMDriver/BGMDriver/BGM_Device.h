@@ -20,6 +20,7 @@
 //  Copyright © 2016, 2017, 2019 Kyle Neideck
 //  Copyright © 2019 Gordon Childs
 //  Copyright (C) 2013 Apple Inc. All Rights Reserved.
+//  Copyright © 2022 Descript
 //
 //  Based largely on SA_Device.h from Apple's SimpleAudioDriver Plug-In sample code.
 //  https://developer.apple.com/library/mac/samplecode/AudioDriverExamples
@@ -75,11 +76,13 @@ protected:
                                            AudioObjectID inOutputVolumeControlID,
 										   AudioObjectID inOutputMuteControlID);
     virtual						~BGM_Device();
-    
+
+public:
     virtual void				Activate();
     virtual void				Deactivate();
     
 private:
+	void 						SendDeviceIsAlivePropertyNotifications();
     void                        InitLoopback();
 	
 #pragma mark Property Operations
