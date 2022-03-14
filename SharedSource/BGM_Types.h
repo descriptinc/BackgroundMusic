@@ -40,7 +40,7 @@ static const char* const kBGMIssueTrackerURL = "https://github.com/kyleneideck/B
 #pragma mark IDs
 
 // TODO: Change these and the other defines to const strings?
-#define kBGMDriverBundleID           "com.bearisdriving.BGM.Driver"
+#define kBGMDriverBundleID           "com.descript.LoopbackAudio"
 #define kBGMAppBundleID              "com.bearisdriving.BGM.App"
 #define kBGMXPCHelperBundleID        "com.bearisdriving.BGM.XPCHelper"
 
