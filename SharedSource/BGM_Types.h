@@ -17,6 +17,7 @@
 //  BGM_Types.h
 //  SharedSource
 //
+//  Copyright © 2022 Descript
 //  Copyright © 2016, 2017, 2019 Kyle Neideck
 //
 
@@ -44,12 +45,12 @@ static const char* const kBGMIssueTrackerURL = "https://github.com/kyleneideck/B
 #define kBGMAppBundleID              "com.bearisdriving.BGM.App"
 #define kBGMXPCHelperBundleID        "com.bearisdriving.BGM.XPCHelper"
 
-#define kBGMDeviceUID                "BGMDevice"
-#define kBGMDeviceModelUID           "BGMDeviceModelUID"
-#define kBGMDeviceUID_UISounds       "BGMDevice_UISounds"
-#define kBGMDeviceModelUID_UISounds  "BGMDeviceModelUID_UISounds"
-#define kBGMNullDeviceUID            "BGMNullDevice"
-#define kBGMNullDeviceModelUID       "BGMNullDeviceModelUID"
+#define kBGMDeviceUID                "DescriptLoopbackDevice"
+#define kBGMDeviceModelUID           "DescriptLoopbackDeviceModelUID"
+#define kBGMDeviceUID_UISounds       "DescriptLoopbackDevice_UISounds"
+#define kBGMDeviceModelUID_UISounds  "DescriptLoopbackDeviceModelUID_UISounds"
+#define kBGMNullDeviceUID            "DescriptNullDevice"
+#define kBGMNullDeviceModelUID       "DescriptNullDeviceModelUID"
 
 // The object IDs for the audio objects this driver implements.
 //
