@@ -32,34 +32,34 @@
 
 # If HEAD isn't tagged, or has "SNAPSHOT" or "DEBUG" in the tag name, this is a snapshot build.
 # If HEAD is tagged more than once, use the most recent.
-TAG=$(/usr/bin/git tag --points-at HEAD --sort='-taggerdate' 2>/dev/null | head -n 1)
-
-if [[ $? -eq 0 ]] && ( [[ "${TAG}" == "" ]] || \
-        [[ "${TAG}" =~ .*SNAPSHOT.* ]] || \
-        [[ "${TAG}" =~ .*DEBUG.* ]] ); then
-    head_short_id=$(/usr/bin/git rev-list HEAD --max-count=1 --abbrev-commit)
-    info_plist="${BUILT_PRODUCTS_DIR}/${INFOPLIST_PATH}"
-
-    if [[ "${CONFIGURATION}" != "Release" ]]; then
-        build_type="DEBUG"
-    else
-        build_type="SNAPSHOT"
-    fi
-
-    if [[ -f "$info_plist" ]]; then
-        current_version=$(/usr/libexec/PlistBuddy -c "Print :CFBundleShortVersionString" "${info_plist}")
-        base_version=$(/usr/libexec/PlistBuddy -c "Print :BGMBundleVersionBase" "${info_plist}" 2>/dev/null)
-
-        if [[ $? -ne 0 ]] || [[ "${base_version}" == "" ]]; then
-            base_version="${current_version}"
-            /usr/libexec/PlistBuddy -c "Add :BGMBundleVersionBase string ${base_version}" "${info_plist}"
-        fi
-
-        new_version="${base_version}-${build_type}-${head_short_id}"
-
-        if [[ "${new_version}" != "${current_version}" ]]; then  # Only touch the file if we need to.
-            /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString ${new_version}" "${info_plist}"
-        fi
-    fi
-fi
+#TAG=$(/usr/bin/git tag --points-at HEAD --sort='-taggerdate' 2>/dev/null | head -n 1)
+#
+#if [[ $? -eq 0 ]] && ( [[ "${TAG}" == "" ]] || \
+#        [[ "${TAG}" =~ .*SNAPSHOT.* ]] || \
+#        [[ "${TAG}" =~ .*DEBUG.* ]] ); then
+#    head_short_id=$(/usr/bin/git rev-list HEAD --max-count=1 --abbrev-commit)
+#    info_plist="${BUILT_PRODUCTS_DIR}/${INFOPLIST_PATH}"
+#
+#    if [[ "${CONFIGURATION}" != "Release" ]]; then
+#        build_type="DEBUG"
+#    else
+#        build_type="SNAPSHOT"
+#    fi
+#
+#    if [[ -f "$info_plist" ]]; then
+#        current_version=$(/usr/libexec/PlistBuddy -c "Print :CFBundleShortVersionString" "${info_plist}")
+#        base_version=$(/usr/libexec/PlistBuddy -c "Print :BGMBundleVersionBase" "${info_plist}" 2>/dev/null)
+#
+#        if [[ $? -ne 0 ]] || [[ "${base_version}" == "" ]]; then
+#            base_version="${current_version}"
+#            /usr/libexec/PlistBuddy -c "Add :BGMBundleVersionBase string ${base_version}" "${info_plist}"
+#        fi
+#
+#        new_version="${base_version}-${build_type}-${head_short_id}"
+#
+#        if [[ "${new_version}" != "${current_version}" ]]; then  # Only touch the file if we need to.
+#            /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString ${new_version}" "${info_plist}"
+#        fi
+#    fi
+#fi
 
