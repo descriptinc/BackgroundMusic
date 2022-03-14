@@ -45,7 +45,7 @@ static const char* const kBGMIssueTrackerURL = "https://github.com/kyleneideck/B
 #define kBGMAppBundleID              "com.bearisdriving.BGM.App"
 #define kBGMXPCHelperBundleID        "com.bearisdriving.BGM.XPCHelper"
 
-#define kBGMDeviceUID                "DescriptLoopbackDevice"
+#define kBGMDeviceUID                "com.descript.audio.loopback"
 #define kBGMDeviceModelUID           "DescriptLoopbackDeviceModelUID"
 #define kBGMDeviceUID_UISounds       "DescriptLoopbackDevice_UISounds"
 #define kBGMDeviceModelUID_UISounds  "DescriptLoopbackDeviceModelUID_UISounds"
