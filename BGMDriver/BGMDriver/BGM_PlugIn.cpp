@@ -202,10 +202,12 @@ void	BGM_PlugIn::GetPropertyData(AudioObjectID inObjectID, pid_t inClientPID, co
             // Fall through because this plug-in object only owns the devices.
 		case kAudioPlugInPropertyDeviceList:
             {
+#if DEBUG
                 const char* thePropertyName =
                         inAddress.mSelector == kAudioObjectPropertyOwnedObjects ?
                                 "kAudioObjectPropertyOwnedObjects" :
                                 "kAudioPlugInPropertyDeviceList";
+#endif
     			AudioObjectID* theReturnedDeviceList = reinterpret_cast<AudioObjectID*>(outData);
     			int theDeviceListIdx = 0;
                 outDataSize = 0;
