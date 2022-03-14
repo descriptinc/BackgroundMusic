@@ -119,7 +119,7 @@
 		1C8034DE1BDD073B00668E00 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		1CA2A9E01E8D1D08007A76A4 /* BGM_Stream.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BGM_Stream.cpp; sourceTree = "<group>"; };
 		1CA2A9E11E8D1D08007A76A4 /* BGM_Stream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BGM_Stream.h; sourceTree = "<group>"; };
-		1CB8B3641BBBB78D000E2DD1 /* Descript Loopback Device.driver */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Descript Loopback Device.driver"; sourceTree = BUILT_PRODUCTS_DIR; };
+		1CB8B3641BBBB78D000E2DD1 /* DescriptLoopbackAudio.driver */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DescriptLoopbackAudio.driver; sourceTree = BUILT_PRODUCTS_DIR; };
 		1CB8B3681BBBB78D000E2DD1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		1CB8B36D1BBBD541000E2DD1 /* BGM_PlugInInterface.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BGM_PlugInInterface.cpp; sourceTree = "<group>"; };
 		1CB8B3701BBBD8A4000E2DD1 /* CADebugMacros.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CADebugMacros.cpp; path = PublicUtility/CADebugMacros.cpp; sourceTree = "<group>"; };
@@ -253,7 +253,7 @@
 		1CB8B3651BBBB78D000E2DD1 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				1CB8B3641BBBB78D000E2DD1 /* Descript Loopback Device.driver */,
+				1CB8B3641BBBB78D000E2DD1 /* DescriptLoopbackAudio.driver */,
 				1C8034DA1BDD073B00668E00 /* BGMDriverTests.xctest */,
 				2743C9C61D7EF84B0089613B /* libPublicUtility.a */,
 			);
@@ -400,9 +400,9 @@
 			productReference = 1C8034DA1BDD073B00668E00 /* BGMDriverTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		1CB8B3631BBBB78D000E2DD1 /* Descript Loopback Device */ = {
+		1CB8B3631BBBB78D000E2DD1 /* DescriptLoopbackAudio */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 1CB8B3691BBBB78D000E2DD1 /* Build configuration list for PBXNativeTarget "Descript Loopback Device" */;
+			buildConfigurationList = 1CB8B3691BBBB78D000E2DD1 /* Build configuration list for PBXNativeTarget "DescriptLoopbackAudio" */;
 			buildPhases = (
 				1CB8B3601BBBB78D000E2DD1 /* Sources */,
 				1CB8B3611BBBB78D000E2DD1 /* Frameworks */,
@@ -413,9 +413,9 @@
 			);
 			dependencies = (
 			);
-			name = "Descript Loopback Device";
+			name = DescriptLoopbackAudio;
 			productName = BGMDriver;
-			productReference = 1CB8B3641BBBB78D000E2DD1 /* Descript Loopback Device.driver */;
+			productReference = 1CB8B3641BBBB78D000E2DD1 /* DescriptLoopbackAudio.driver */;
 			productType = "com.apple.product-type.bundle";
 		};
 		2743C9C51D7EF84B0089613B /* PublicUtility */ = {
@@ -472,7 +472,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				1CB8B3631BBBB78D000E2DD1 /* Descript Loopback Device */,
+				1CB8B3631BBBB78D000E2DD1 /* DescriptLoopbackAudio */,
 				1C8034D91BDD073B00668E00 /* BGMDriverTests */,
 				2743C9C51D7EF84B0089613B /* PublicUtility */,
 			);
@@ -940,7 +940,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		1CB8B3691BBBB78D000E2DD1 /* Build configuration list for PBXNativeTarget "Descript Loopback Device" */ = {
+		1CB8B3691BBBB78D000E2DD1 /* Build configuration list for PBXNativeTarget "DescriptLoopbackAudio" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				1CB8B36A1BBBB78D000E2DD1 /* Debug */,

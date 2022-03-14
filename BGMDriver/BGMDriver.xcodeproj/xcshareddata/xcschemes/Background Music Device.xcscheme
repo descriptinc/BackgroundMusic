@@ -15,8 +15,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "1CB8B3631BBBB78D000E2DD1"
-               BuildableName = "Descript Loopback Device.driver"
-               BlueprintName = "Descript Loopback Device"
+               BuildableName = "DescriptLoopbackAudio.driver"
+               BlueprintName = "DescriptLoopbackAudio"
                ReferencedContainer = "container:BGMDriver.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -36,8 +36,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "1CB8B3631BBBB78D000E2DD1"
-            BuildableName = "Descript Loopback Device.driver"
-            BlueprintName = "Descript Loopback Device"
+            BuildableName = "DescriptLoopbackAudio.driver"
+            BlueprintName = "DescriptLoopbackAudio"
             ReferencedContainer = "container:BGMDriver.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -45,8 +45,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "1CB8B3631BBBB78D000E2DD1"
-            BuildableName = "Descript Loopback Device.driver"
-            BlueprintName = "Descript Loopback Device"
+            BuildableName = "DescriptLoopbackAudio.driver"
+            BlueprintName = "DescriptLoopbackAudio"
             ReferencedContainer = "container:BGMDriver.xcodeproj">
          </BuildableReference>
       </CodeCoverageTargets>
@@ -86,8 +86,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "1CB8B3631BBBB78D000E2DD1"
-            BuildableName = "Descript Loopback Device.driver"
-            BlueprintName = "Descript Loopback Device"
+            BuildableName = "DescriptLoopbackAudio.driver"
+            BlueprintName = "DescriptLoopbackAudio"
             ReferencedContainer = "container:BGMDriver.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -109,8 +109,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "1CB8B3631BBBB78D000E2DD1"
-            BuildableName = "Descript Loopback Device.driver"
-            BlueprintName = "Descript Loopback Device"
+            BuildableName = "DescriptLoopbackAudio.driver"
+            BlueprintName = "DescriptLoopbackAudio"
             ReferencedContainer = "container:BGMDriver.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
