@@ -1,8 +1,8 @@
 <!-- vim: set tw=120: -->
 
-# CleanShot Driver
+# Descript Loopback Audio Driver
 
-CleanShot Driver is a fork of BGMDriver from [Background Music](https://github.com/kyleneideck/BackgroundMusic). Below
+Descript Loopback Audio Driver is a fork of BGMDriver from [Background Music](https://github.com/kyleneideck/BackgroundMusic). Below
 is the original README.
 
 ---
